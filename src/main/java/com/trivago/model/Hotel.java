@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 public class Hotel {
   private final int id;
-  private String name;
+  private final String name;
   private final int rating;
   private final int stars;
 
