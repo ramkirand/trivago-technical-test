@@ -13,9 +13,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -61,25 +63,24 @@ public class HotelSearchEngineImpl implements HotelSearchEngine {
       }
       listHotelIdWithOffer.add(hotel.getId());
     }
-    synchronized (this) {
-      Storage.advertiserToListHotelId.forEach(
-          (k, v) -> {
-            try {
-              Map<Integer, Offer> hotelsToOfferFromThisAdvertiser =
-                  offerProvider.getOffersFromAdvertiser(k, listHotelIdWithOffer, dateRange);
-              hotelsToOfferFromThisAdvertiser.forEach(
-                  (key, val) -> {
-                    List<Offer> offers =
-                        Storage.hotelIdToOffersList.getOrDefault(key, new ArrayList<>());
-                    offers.add(val);
-                    Storage.hotelIdToOffersList.put(key, offers);
-                  });
 
-            } catch (IOException e) {
-              log.debug(e.getMessage());
-            }
-          });
-    }
+    Storage.advertiserToListHotelId.forEach(
+        (k, v) -> {
+          try {
+            Map<Integer, Offer> hotelsToOfferFromThisAdvertiser =
+                offerProvider.getOffersFromAdvertiser(k, listHotelIdWithOffer, dateRange);
+            hotelsToOfferFromThisAdvertiser.forEach(
+                (key, val) -> {
+                  List<Offer> offers =
+                      Storage.hotelIdToOffersList.getOrDefault(key, new ArrayList<>());
+                  offers.add(val);
+                  Storage.hotelIdToOffersList.put(key, offers);
+                });
+
+          } catch (IOException e) {
+            log.debug(e.getMessage());
+          }
+        });
 
     List<HotelWithOffers> listHotelWithOffers = new ArrayList<>();
     listHotelIdWithOffer.forEach(
@@ -88,9 +89,9 @@ public class HotelSearchEngineImpl implements HotelSearchEngine {
                 new HotelWithOffers(
                     Storage.hotelIdToHotelMap.get(l), Storage.hotelIdToOffersList.get(l))));
     queryCount.getAndIncrement();
-    return listHotelWithOffers;
+    //Collections.sort(listHotelWithOffers);
+    return listHotelWithOffers.stream().sorted().collect(Collectors.toList());
   }
-
   @Override
   public synchronized long totalQueries() {
     log.info("<<<<<<<<<<   Total Queries: " + queryCount.get());
