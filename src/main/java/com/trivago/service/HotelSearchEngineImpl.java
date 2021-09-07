@@ -89,7 +89,6 @@ public class HotelSearchEngineImpl implements HotelSearchEngine {
                 new HotelWithOffers(
                     Storage.hotelIdToHotelMap.get(l), Storage.hotelIdToOffersList.get(l))));
     queryCount.getAndIncrement();
-    //Collections.sort(listHotelWithOffers);
     return listHotelWithOffers.stream().sorted().collect(Collectors.toList());
   }
   @Override
