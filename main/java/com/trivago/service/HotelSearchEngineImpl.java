@@ -39,6 +39,7 @@ public class HotelSearchEngineImpl implements HotelSearchEngine {
         dataProcessorService.processCityData();
         dataProcessorService.processHotelData();
         dataProcessorService.processAdvertiserIdWithHotels();
+        log.info("initialize end");
     }
 
     @Override
